@@ -12,8 +12,9 @@ price_buffer = defaultdict(lambda: deque(maxlen=5))
 
 consumer = Consumer({
     'bootstrap.servers': 'localhost:9092',
-    'group.id': 'price-consumer-group',
-    'auto.offset.reset': 'earliest'
+    'group.id': 'price-consumer-group-test1',
+    'auto.offset.reset': 'earliest',
+    'enable.auto.commit': False  # optional for debug
 })
 
 consumer.subscribe(['price-events'])
@@ -32,7 +33,7 @@ try:
         timestamp = datetime.fromisoformat(data["timestamp"])
         provider = data["source"]
         raw_response_id = data["raw_response_id"]
-
+        print(f"Consumed message for {symbol} at {timestamp} with price {price}")
         session = SessionLocal()
 
         # Store raw price point
@@ -45,6 +46,7 @@ try:
             raw_response_id=raw_response_id
         )
         session.add(pp)
+        print(f"Stored in processed_price_points for {symbol}")
 
         # Update buffer and calculate average
         price_buffer[symbol].append(price)

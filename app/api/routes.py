@@ -54,7 +54,7 @@ def fetch_and_store_raw(symbol: str = "AAPL", db: Session = Depends(get_db)):
 
 
 
-router = APIRouter()
+# router = APIRouter()
 
 @router.post("/prices/poll", status_code=202)
 def poll_market_data(payload: PollRequest, background_tasks: BackgroundTasks):

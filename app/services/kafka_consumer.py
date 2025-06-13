@@ -18,7 +18,7 @@ consumer = Consumer({
 
 consumer.subscribe(['price-events'])
 
-print("📡 Kafka consumer running...")
+print("Kafka consumer running...")
 
 try:
     while True:
@@ -60,6 +60,6 @@ try:
         session.close()
 
 except KeyboardInterrupt:
-    print("🛑 Consumer stopped")
+    print("Consumer stopped")
 finally:
     consumer.close()

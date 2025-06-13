@@ -15,7 +15,7 @@ def poll_prices(symbols, interval, provider, job_id):
     try:
         for _ in range(10):  # simulate 10 polling rounds (10 mins for interval=60)
             for symbol in symbols:
-                print(f"🔁 Polling: {symbol}")
+                print(f"Polling: {symbol}")
                 url = "https://www.alphavantage.co/query"
                 params = {
                     "function": "TIME_SERIES_INTRADAY",

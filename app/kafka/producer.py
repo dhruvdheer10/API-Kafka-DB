@@ -1,4 +1,3 @@
-# app/kafka/producer.py
 from confluent_kafka import Producer
 import json
 

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, JSON, Interval
+from sqlalchemy import Column, ForeignKey, Integer, String, Float, DateTime, JSON, Interval
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
@@ -15,6 +15,7 @@ class RawMarketData(Base):
     provider = Column(String)
     timestamp = Column(DateTime, index=True)  # from the key of time series
     raw_payload = Column(JSON)
+    job_id = Column(String, ForeignKey("polling_jobs.job_id"), nullable=True)
 
 
 # 2. Processed Price Points

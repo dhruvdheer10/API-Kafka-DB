@@ -1,5 +1,8 @@
-from sqlalchemy import Column, String, Float, DateTime
+from sqlalchemy import Column, String, Float, DateTime, ForeignKey
 from app.db import Base
+import uuid
+from sqlalchemy.dialects.postgresql import UUID
+
 
 class ProcessedPricePoint(Base):
     __tablename__ = "processed_price_points"
@@ -9,4 +12,4 @@ class ProcessedPricePoint(Base):
     price = Column(Float, nullable=False)
     timestamp = Column(DateTime, nullable=False)
     provider = Column(String, nullable=False)
-    raw_response_id = Column(String, nullable=False)
+    raw_response_id = Column(UUID(as_uuid=(True)), ForeignKey("raw_market_data.id"), nullable=False)

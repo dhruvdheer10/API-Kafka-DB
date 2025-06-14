@@ -12,7 +12,7 @@ price_buffer = defaultdict(lambda: deque(maxlen=5))
 
 consumer = Consumer({
     'bootstrap.servers': 'localhost:9092',
-    'group.id': 'price-consumer-group-test1',
+    'group.id': 'price-consumer-group-test2',
     'auto.offset.reset': 'earliest',
     'enable.auto.commit': False  # optional for debug
 })

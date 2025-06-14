@@ -9,6 +9,8 @@ from fastapi.encoders import jsonable_encoder
 from fastapi import APIRouter, BackgroundTasks
 from app.schemas.poll_request import PollRequest
 from app.services.poller import poll_prices
+from app.models.processed_price_point import ProcessedPricePoint
+from fastapi import Query
 import uuid
 
 
@@ -19,42 +21,6 @@ def get_db():
         yield db
     finally:
         db.close()
-
-
-@router.get("/fetch-price")
-def fetch_and_store_raw(symbol: str = "AAPL", db: Session = Depends(get_db)):
-    API_KEY = "B2MYYTYG9G64B7AJ"
-    url = "https://www.alphavantage.co/query"
-    params = {
-        "function": "TIME_SERIES_INTRADAY",
-        "symbol": symbol,
-        "interval": "5min",
-        "apikey": API_KEY
-    }
-
-    response = requests.get(url, params=params)
-    data = response.json()
-
-    time_series = data.get("Time Series (5min)", {})
-    if not time_series:
-        return {"error": "No time series data found"}
-
-    entry = RawMarketData(
-        symbol=symbol,
-        provider="alpha_vantage",
-        timestamp=datetime.now(),
-        raw_payload=(data)
-    )
-    db.add(entry)
-
-    db.commit()
-    print(entry)
-
-    return JSONResponse(content=jsonable_encoder(entry))
-
-
-
-# router = APIRouter()
 
 @router.post("/prices/poll", status_code=202)
 def poll_market_data(payload: PollRequest, background_tasks: BackgroundTasks):
@@ -67,4 +33,27 @@ def poll_market_data(payload: PollRequest, background_tasks: BackgroundTasks):
             "symbols": payload.symbols,
             "interval": payload.interval
         }
+    }
+
+@router.get("/prices/latest")
+def get_latest_price(
+    symbol: str = Query(...),
+    provider: str = Query(None),
+    db: Session = Depends(get_db)
+):
+    query = db.query(ProcessedPricePoint).filter(ProcessedPricePoint.symbol == symbol)
+
+    if provider:
+        query = query.filter(ProcessedPricePoint.provider == provider)
+
+    latest = query.order_by(ProcessedPricePoint.timestamp.desc()).first()
+
+    if not latest:
+        return {"error": "No data found"}
+
+    return {
+        "symbol": latest.symbol,
+        "price": latest.price,
+        "timestamp": latest.timestamp.isoformat(),
+        "provider": latest.provider
     }

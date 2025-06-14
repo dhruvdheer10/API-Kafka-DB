@@ -1,7 +1,7 @@
 from confluent_kafka import Producer
 import json
 
-producer = Producer({'bootstrap.servers': 'localhost:9092'})
+producer = Producer({'bootstrap.servers': 'kafka:9092'})
 
 def send_to_kafka(message: dict):
     producer.produce(

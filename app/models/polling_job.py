@@ -1,7 +1,7 @@
 
 from sqlalchemy import Column, String, Integer, JSON, DateTime
 from sqlalchemy.sql import func
-from app.models.models import Base
+from app.models.base import Base
 
 class PollingJob(Base):
     __tablename__ = "polling_jobs"

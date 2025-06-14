@@ -21,7 +21,7 @@ def poll_prices(symbols, interval, provider, job_id):
                 print(f"Polling: {symbol}")
                 if provider == "yahoo_finance":
                     ticker = yf.Ticker("AAPL")
-                    df = ticker.history(period="1d", interval="5m")
+                    df = ticker.history(period="5d", interval="5m")
 
                     json_data = {
                         ts.isoformat(): values

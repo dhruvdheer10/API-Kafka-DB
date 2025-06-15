@@ -32,7 +32,7 @@ def poll_prices(symbols, interval, provider, job_id):
                     raw_entry = RawMarketData(
                         symbol=symbol,
                         provider=provider,
-                        timestamp=datetime.now(),
+                        timestamp=datetime.now(ZoneInfo("America/Los_Angeles")),
                         # job_id=job_id,
                         raw_payload=json_data
                     )
@@ -69,7 +69,7 @@ def poll_prices(symbols, interval, provider, job_id):
                     raw_entry = RawMarketData(
                         symbol=symbol,
                         provider=provider,
-                        timestamp=datetime.now(),
+                        timestamp=datetime.now(ZoneInfo("America/Los_Angeles")),
                         # job_id=job_id,
                         raw_payload=data
                     )

@@ -20,7 +20,6 @@ NOTE: I have added pgadmin in the Dockerfile as well, for users to see the data 
 
 - Make sure **Docker Desktop** is installed and running on your machine.
 
----
 
    ```bash
    git clone https://github.com/dhruvdheer10/API-Kafka-DB.git
@@ -34,7 +33,6 @@ NOTE: I have added pgadmin in the Dockerfile as well, for users to see the data 
 
    - Check Docker Desktop: you should see **5 running containers** (API, DB, Kafka, Zookeeper, pgAdmin)
 
----
 
 5. Open Swagger UI in your browser:
    [http://localhost:8000/docs#/](http://localhost:8000/docs#/)
@@ -48,7 +46,6 @@ NOTE: I have added pgadmin in the Dockerfile as well, for users to see the data 
    }
    ```
 
----
 
 7. Open pgAdmin:
    [http://localhost:5050/login?next=/](http://localhost:5050/login?next=/)
@@ -71,7 +68,6 @@ NOTE: I have added pgadmin in the Dockerfile as well, for users to see the data 
     - `processed_price_points`
     - `symbol_averages`
 
----
 
 11. In a terminal, run:
    ```bash

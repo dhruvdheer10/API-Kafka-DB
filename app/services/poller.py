@@ -1,4 +1,5 @@
 # app/services/poller.py
+import os
 from zoneinfo import ZoneInfo
 import requests
 import time
@@ -11,17 +12,19 @@ from app.db import SessionLocal
 from datetime import datetime
 import yfinance as yf
 
-API_KEY = "B2MYYTYG9G64B7AJ"
+# API_KEY = "B2MYYTYG9G64B7AJ"
+API_KEY = os.getenv("API_KEY")
 
 def poll_prices(symbols, interval, provider, job_id):
     db = SessionLocal()
     raw_entry_ids = []
     try:
-        for _ in range(1):  # simulate 10 polling rounds (10 mins for interval=60)
+        for _ in range(10):  # simulate 10 polling rounds (10 mins for interval=30)
             for symbol in symbols:
                 print(f"Polling: {symbol}")
-                if provider == "yahoo_finance":
-                    ticker = yf.Ticker("AAPL")
+                print(f"Polling round {_+1} for symbol {symbol}")
+                if provider == os.getenv("YAHOO_FINANCE"):
+                    ticker = yf.Ticker(symbol)
                     df = ticker.history(period="1d", interval="5m")
 
                     json_data = {
@@ -44,6 +47,7 @@ def poll_prices(symbols, interval, provider, job_id):
                         price = float(values["Close"])
                         utc_time = datetime.fromisoformat(ts)
                         la_time = utc_time.astimezone(ZoneInfo("America/Los_Angeles"))
+                        print(f"On top")
                         send_to_kafka({
                             "symbol": symbol,
                             "price": price,
@@ -52,12 +56,12 @@ def poll_prices(symbols, interval, provider, job_id):
                             "raw_response_id": str(raw_entry.id)
     })
                     
-                if provider == "alpha_vantage":
+                if provider == os.getenv("ALPHA_VANTAGE"):
 
                 #ALPHA VANTAGE API
                 # Uncomment the following lines to use Alpha Vantage API
 
-                    url = "https://www.alphavantage.co/query"
+                    url = os.getenv("ALPHA_VANTAGE_URL")
                     params = {
                         "function": "TIME_SERIES_INTRADAY",
                         "symbol": symbol,

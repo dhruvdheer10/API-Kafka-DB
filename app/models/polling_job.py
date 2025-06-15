@@ -6,7 +6,7 @@ from app.models.base import Base
 class PollingJob(Base):
     __tablename__ = "polling_jobs"
 
-    job_id = Column(String, primary_key=True)  # e.g., "poll_7691e0"
-    status = Column(String, nullable=False)    # e.g., "accepted"
-    config = Column(JSON, nullable=False)      # stores symbols, interval, etc.
+    job_id = Column(String, primary_key=True)  
+    status = Column(String, nullable=False)    
+    config = Column(JSON, nullable=False)      
     created_at = Column(DateTime(timezone=False), server_default=func.now())

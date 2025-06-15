@@ -1,3 +1,4 @@
+import os
 from confluent_kafka import Consumer
 from collections import defaultdict, deque
 from app.db import SessionLocal
@@ -6,18 +7,21 @@ from app.models.symbol_average import SymbolAverage
 import json
 import uuid
 from datetime import datetime
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 # Keep track of recent prices
 price_buffer = defaultdict(lambda: deque(maxlen=5))
 
 consumer = Consumer({
-    'bootstrap.servers': 'kafka:9092',
-    'group.id': 'price-consumer-group-test2',
+    'bootstrap.servers': 'kafka:9092',  # Use the Kafka service name defined in docker-compose
+    'group.id': os.getenv("KAFKA_GROUP_ID"),
     'auto.offset.reset': 'earliest',
-    'enable.auto.commit': False  # optional for debug
+    'enable.auto.commit': False
 })
 
-consumer.subscribe(['price-events'])
+consumer.subscribe([os.getenv("KAFKA_TOPIC_NAME")])
 
 print("Kafka consumer running...")
 

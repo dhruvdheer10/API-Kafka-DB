@@ -17,7 +17,7 @@ def poll_prices(symbols, interval, provider, job_id):
     db = SessionLocal()
     raw_entry_ids = []
     try:
-        for _ in range(1):  # simulate 10 polling rounds (10 mins for interval=60)
+        for _ in range(10):  # simulate 10 polling rounds (10 mins for interval=30)
             for symbol in symbols:
                 print(f"Polling: {symbol}")
                 if provider == "yahoo_finance":

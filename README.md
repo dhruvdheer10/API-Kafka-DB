@@ -1,5 +1,5 @@
 
-# BlockHouse Documentation
+# Market Data Service Documentation
 
 ## 1. Overview
 
@@ -18,26 +18,73 @@ NOTE: I have added pgadmin in the Dockerfile as well, for users to see the data 
 
 ## 2. Setup Instructions
 
-### Environment File (`.env`)
-```env
-DATABASE_URL=postgresql://nadkar:password@postgres_db:5432/market_data_db
-KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-API_KEY=your_alpha_vantage_api_key
-KAFKA_GROUP_ID=price-consumer-group
-KAFKA_TOPIC_NAME=price-events
-YAHOO_FINANCE=yahoo_finance
-ALPHA_VANTAGE=alpha_vantage
-ALPHA_VANTAGE_URL=https://www.alphavantage.co/query
-```
+1. Make sure **Docker Desktop** is installed and running on your machine.
 
-### To Start the System
-```bash
-docker-compose up --build
-```
+
+   ```bash
+   git clone https://github.com/dhruvdheer10/API-Kafka-DB.git
+   cd API-Kafka-DB
+   ```
+
+
+   ```bash
+   docker-compose up --build
+   ```
+
+2. Check Docker Desktop: you should see **5 running containers** (API, DB, Kafka, Zookeeper, pgAdmin)
+
+
+3. Open Swagger UI in your browser:
+   [http://localhost:8000/docs#/](http://localhost:8000/docs#/)
+
+4. Use the `POST /poll/prices` endpoint with the following payload:
+   ```json
+   {
+     "symbols": ["AAPL", "MSFT"],
+     "interval": 30,
+     "provider": "alpha_vantage"
+   }
+   ```
+
+
+5. Open pgAdmin:
+   [http://localhost:5050/login?next=/](http://localhost:5050/login?next=/)
+
+6. Login credentials (from `docker-compose.yml`):
+   - **Email**: `admin@example.com`
+   - **Password**: `admin`
+
+7. Register a new server:
+   - **General Tab**:
+     - Name: *Anything*
+   - **Connection Tab**:
+     - Host name/address: `db`
+     - Username: `nadkar` (from `POSTGRES_USER`)
+     - Password: `password` (from `POSTGRES_PASSWORD`)
+
+8. Navigate to the `market_data_db` database → **Schemas → Tables**, and you should see:
+    - `polling_jobs`
+    - `raw_market_data`
+    - `processed_price_points`
+    - `symbol_averages`
+
+
+9. In a terminal, run:
+   ```bash
+   docker exec -it fastapi_app python3 -m app.services.kafka_consumer
+   ```
+
+10. This consumer will:
+   - Read messages from Kafka
+   - Insert entries into:
+     - `processed_price_points`
+     - `symbol_averages`
+
+After running the polling endpoint and consumer, all four tables will be populated. You can inspect them directly via **pgAdmin**.
 
 ---
 
-## 3. API Documentation
+### 3. API Documentation
 
 ### POST `/prices/poll`
 Starts polling job in the background.
@@ -87,7 +134,7 @@ Starts polling job in the background.
   - `processed_price_points`: Flattened price values
   - `symbol_averages`: Moving 5-point average
   - `polling_jobs`: Job tracking
-- **Indexing**: Applied on `(symbol, timestamp)` to avoid duplicate inserts.
+- **Indexing**: Applied on `(symbol, timestamp)`
 - **Foreign Key Constraints**: Tables `raw_market_data`, `processed_price_points`, and `polling_jobs` are linked using foreign key relationships to maintain referential integrity and better traceability across the data pipeline.
 
 
@@ -113,7 +160,7 @@ python3 -m app.services.kafka_consumer
 
 - **Cannot connect to Kafka**: Ensure you're using `kafka:9092` inside Docker or `localhost:9092` from the host.
 - **Tables not visible**: Ensure `Base.metadata.create_all()` is being called and the DB URL is correct.
-- **API call only polling once**: Confirm `interval` is respected and loops aren't broken due to API failure or rate limits
+- **API call only polling once**: Confirm `interval` is respected and loops aren't broken due to API failure or rate limits.
 
 ---
 
@@ -126,7 +173,6 @@ python3 -m app.services.kafka_consumer
 - Indexing silently avoiding inserts
 - Kafka consumer crashing due to unresolved environment setup
 - Delay in job visibility due to asynchronous operations
-- Getting rate limited (25 requests/day for AlphaVantage)
 
 ---
 

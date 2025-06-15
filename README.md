@@ -18,26 +18,77 @@ NOTE: I have added pgadmin in the Dockerfile as well, for users to see the data 
 
 ## 2. Setup Instructions
 
-### Environment File (`.env`)
-```env
-DATABASE_URL=postgresql://nadkar:password@postgres_db:5432/market_data_db
-KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-API_KEY=your_alpha_vantage_api_key
-KAFKA_GROUP_ID=price-consumer-group
-KAFKA_TOPIC_NAME=price-events
-YAHOO_FINANCE=yahoo_finance
-ALPHA_VANTAGE=alpha_vantage
-ALPHA_VANTAGE_URL=https://www.alphavantage.co/query
-```
-
-### To Start the System
-```bash
-docker-compose up --build
-```
+- Make sure **Docker Desktop** is installed and running on your machine.
 
 ---
 
-## 3. API Documentation
+   ```bash
+   git clone https://github.com/dhruvdheer10/API-Kafka-DB.git
+   cd API-Kafka-DB
+   ```
+
+
+   ```bash
+   docker-compose up --build
+   ```
+
+   - Check Docker Desktop: you should see **5 running containers** (API, DB, Kafka, Zookeeper, pgAdmin)
+
+---
+
+5. Open Swagger UI in your browser:
+   [http://localhost:8000/docs#/](http://localhost:8000/docs#/)
+
+6. Use the `POST /poll/prices` endpoint with the following payload:
+   ```json
+   {
+     "symbols": ["AAPL", "MSFT"],
+     "interval": 30,
+     "provider": "alpha_vantage"
+   }
+   ```
+
+---
+
+7. Open pgAdmin:
+   [http://localhost:5050/login?next=/](http://localhost:5050/login?next=/)
+
+8. Login credentials (from `docker-compose.yml`):
+   - **Email**: `admin@example.com`
+   - **Password**: `admin`
+
+9. Register a new server:
+   - **General Tab**:
+     - Name: *Anything*
+   - **Connection Tab**:
+     - Host name/address: `db`
+     - Username: `nadkar` (from `POSTGRES_USER`)
+     - Password: `password` (from `POSTGRES_PASSWORD`)
+
+10. Navigate to the `market_data_db` database → **Schemas → Tables**, and you should see:
+    - `polling_jobs`
+    - `raw_market_data`
+    - `processed_price_points`
+    - `symbol_averages`
+
+---
+
+11. In a terminal, run:
+   ```bash
+   docker exec -it fastapi_app python3 -m app.services.kafka_consumer
+   ```
+
+12. This consumer will:
+   - Read messages from Kafka
+   - Insert entries into:
+     - `processed_price_points`
+     - `symbol_averages`
+
+After running the polling endpoint and consumer, all four tables will be populated. You can inspect them directly via **pgAdmin**.
+
+---
+
+### 3. API Documentation
 
 ### POST `/prices/poll`
 Starts polling job in the background.

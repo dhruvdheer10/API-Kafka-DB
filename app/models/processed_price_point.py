@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Float, DateTime, ForeignKey
+from sqlalchemy import Column, String, Float, DateTime, ForeignKey, UniqueConstraint
 from app.models.base import Base
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
@@ -13,3 +13,7 @@ class ProcessedPricePoint(Base):
     timestamp = Column(DateTime, nullable=False, index=True)
     provider = Column(String, nullable=False)
     raw_response_id = Column(UUID(as_uuid=(True)), ForeignKey("raw_market_data.id"), nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint('symbol', 'timestamp', name='uq_symbol_timestamp'),
+    )

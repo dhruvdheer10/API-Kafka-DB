@@ -36,6 +36,12 @@ try:
         print(f"Consumed message for {symbol} at {timestamp} with price {price}")
         session = SessionLocal()
 
+        existing = session.query(ProcessedPricePoint).filter_by(symbol=symbol, timestamp=timestamp).first()
+        if existing:
+            print(f"Duplicate found for {symbol} at {timestamp}. Skipping insert.")
+            session.close()
+            continue
+
         # Store raw price point
         pp = ProcessedPricePoint(
             id=str(uuid.uuid4()),
